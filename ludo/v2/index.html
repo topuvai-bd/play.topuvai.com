@@ -3,187 +3,51 @@
 <head>
   <meta charset="utf-8">
   <title>DeshiDice</title>
-  <link rel="shortcut icon" href="../../assets/img/favicon.ico">
+  <link rel="shortcut icon" href="favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #121212;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
-    }
-
-    /* Container grid for desktop */
-    #unity-container.desktop {
-      display: grid;
-      grid-template-columns: 250px auto 300px;
-      height: 100vh;
-    }
-
-    /* Left sidebar (fixed) */
-    #left-panel {
-      background: #1f1f1f;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      border-right: 2px solid #333;
-    }
-
-    #left-panel img {
-      max-width: 80%;
-    }
-
-    /* Right sidebar (responsive) */
-    #right-panel {
-      background: #1a1a1a;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    /* Center game canvas */
-    #game-area {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      height: 100vh;
-    }
-
-    #unity-canvas {
-      height: 100%;
-      max-height: 100%;
-      background: #000;
-      aspect-ratio: 9 / 16;  /* keep portrait */
-      width: auto;           /* auto-scale */
-    }
-
-    /* Mobile fullscreen */
-    #unity-container.mobile {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-    }
-
-    #unity-container.mobile #unity-canvas {
-      width: 100vw;
-      height: 100vh;
-    }
-
-    /* Custom loading screen */
-    #unity-loading-bar {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: #121212;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    #loading-logo {
-      width: 200px;
-      height: auto;
-      margin-bottom: 20px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.8; }
-    }
-
-    #loading-text {
-      font-size: 18px;
-      margin-top: 10px;
-    }
-
-    #unity-progress-bar-empty {
-      width: 70%;
-      height: 12px;
-      background: #333;
-      border-radius: 6px;
-      margin-top: 15px;
-      overflow: hidden;
-    }
-
-    #unity-progress-bar-full {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #ff8a00, #e52e71);
-      transition: width 0.3s ease;
-    }
-    #unity-container.mobile .desktop-only {
-      display: none !important;
-    }
-
-    /* Hide side info when screen width is smaller than 720px */
-    @media (max-width: 720px) {
-      #left-panel,
-      #right-panel {
-        display: none !important;
-      }
-
-      #unity-container {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-      }
-
-      #unity-canvas {
-        width: 100vw !important;
-        height: 100vh !important;
-        aspect-ratio: auto !important;
-      }
-    }
-
-  </style>
+  <link rel="stylesheet" href="style.css">
   <script>
     function OnExit(url){
       console.log("Callback OnExit Called with url:" + url);
+      window.location.href = url;
     }
+    function OnAuthSuccess(data){
+      console.log("Callback OnAuthSuccess Called with data:", data);
+    }
+    function OnMatchStart(data){
+      console.log("Callback OnMatchStart Called with data:", data);
+    } 
   </script>
 </head>
 <body>
   <div id="unity-container">
-    <!-- Left Sidebar -->
     <div id="left-panel" class="desktop-only">
-      <img src="../../assets/img/logo.png" alt="DeshiDice Logo">
+      <img src="logo.png" alt="Game Logo">
       <p>Welcome to DeshiDice 🎲</p>
     </div>
 
-    <!-- Game Canvas -->
     <div id="game-area">
-      <canvas id="unity-canvas" tabindex="-1"></canvas>
+      <canvas id="unity-canvas"  tabindex="-1"></canvas>
     </div>
 
-    <!-- Right Sidebar -->
     <div id="right-panel" class="desktop-only">
       <h2>Game Info</h2>
-      <p>Rent Game API from rent-a-game.topuvai.com</p>
+      <p>Powered by topuvai</p>
     </div>
   </div>
 
-  <!-- Custom Loading Screen -->
   <div id="unity-loading-bar">
-    <img id="loading-logo" src="../../assets/img/logo.png" alt="Game Logo">
+    <img id="loading-logo" src="logo.png" alt="Game Logo">
     <div id="unity-progress-bar-empty">
       <div id="unity-progress-bar-full"></div>
     </div>
     <div id="loading-text">Loading... 0%</div>
   </div>
 
+  <div id="unity-warning"></div>
+
+  <!-- Unity loader script (correct macro) -->
+  <script src="Build/v2.loader.js"></script>
   <script>
     const container = document.querySelector("#unity-container");
     const canvas = document.querySelector("#unity-canvas");
@@ -191,7 +55,7 @@
     const progressBarFull = document.querySelector("#unity-progress-bar-full");
     const loadingText = document.querySelector("#loading-text");
 
-    // Detect mobile vs desktop
+    // Device detection
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       container.classList.add("mobile");
     } else {
@@ -199,31 +63,48 @@
     }
 
     var buildUrl = "Build";
-    var projectTitle = "v2";
-    var loaderUrl = buildUrl + "/" + projectTitle + ".loader.js";
     var config = {
-      dataUrl: buildUrl + "/" + projectTitle + ".data",
-      frameworkUrl: buildUrl + "/" + projectTitle + ".framework.js",
-      codeUrl: buildUrl + "/" + projectTitle + ".wasm",
+      dataUrl: buildUrl + "/v2.data",
+      frameworkUrl: buildUrl + "/v2.framework.js",
+      codeUrl: buildUrl + "/v2.wasm",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "topuvai",
       productName: "DeshiDice",
-      productVersion: "1.0",
+      productVersion: "1.0"
     };
 
-    var script = document.createElement("script");
-    script.src = loaderUrl;
-    script.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
-        progressBarFull.style.width = (100 * progress) + "%";
-        loadingText.innerText = "Loading... " + Math.round(progress * 100) + "%";
-      }).then((unityInstance) => {
-        loadingBar.style.display = "none";
-      }).catch((message) => {
-        alert(message);
-      });
-    };
-    document.body.appendChild(script);
+    createUnityInstance(canvas, config, (progress) => {
+      progressBarFull.style.width = (100 * progress) + "%";
+      loadingText.innerText = "Loading... " + Math.round(progress * 100) + "%";
+    }).then((unityInstance) => {
+      loadingBar.style.display = "none";
+    }).catch((message) => {
+      alert(message);
+    });
+
+    function unityShowBanner(msg, type) {
+      const warningBanner = document.querySelector("#unity-warning");
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      }
+      var div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') {
+        div.style = 'background: red; padding: 10px;';
+      } else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function () {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
+
+    console.log = function() {};
+    console.warn = function() {};
+    console.error = function() {};
   </script>
 </body>
 </html>
