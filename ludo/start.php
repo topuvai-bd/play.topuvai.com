@@ -1,5 +1,6 @@
 <?php
     $error = "";
+    $version = "v3";
     if (isset($_GET["subscription_id"]) && isset($_GET["token"])) {
         $token           = $_GET["token"];
         $subscription_id = $_GET["subscription_id"];
@@ -31,13 +32,13 @@
         $accept_encoding = $_SERVER['HTTP_ACCEPT_ENCODING'] ?? '';
 
         if (strpos($accept_encoding, 'br') !== false) {
-            $version = 'v2_brotli';
+            $version = $version.'_brotli';
         } elseif (strpos($accept_encoding, 'gzip') !== false) {
-            $version = 'v2_gzip';
+            $version = $version.'_gzip';
         } else {
-            $version = 'v2';
+            // $version = $version;
         }
-        $useVersion = $compress == "ai" ? $version : ($compress=="br" ? 'v2_brotli' : 'v2_gzip');
+        $useVersion = $compress == "ai" ? $version : ($compress=="br" ? $version.'_brotli' : $version.'_gzip');
 
     } else {
         $error = "Need token and subscription_id as GET Parameters";

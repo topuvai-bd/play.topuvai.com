@@ -1,0 +1,58 @@
+# Enable MultiViews to serve compressed variants automatically
+Options +MultiViews
+
+# MIME types and encoding
+<IfModule mod_mime.c>
+    # Remove conflicting types
+    RemoveType .gz
+    RemoveType .br
+    RemoveLanguage .br
+
+    # Enable encodings
+    AddEncoding br .br
+    AddEncoding gzip .gz
+
+    # MIME types for compressed files
+    AddType application/javascript .js .js.unityweb .js.br .js.gz
+    AddType application/wasm .wasm .wasm.unityweb .wasm.br .wasm.gz
+    AddType application/octet-stream .data .data.unityweb .data.br .data.gz
+    AddType application/octet-stream .symbols.json .symbols.json.br .symbols.json.gz
+</IfModule>
+
+# Set Content-Encoding for compressed unityweb files
+<IfModule mod_headers.c>
+    <FilesMatch "\.unityweb\.br$">
+        Header set Content-Encoding br
+        Header set Content-Type application/octet-stream
+        Header set Cache-Control "public, max-age=2592000"
+        Header add Cross-Origin-Opener-Policy "same-origin"
+        Header add Cross-Origin-Embedder-Policy "require-corp"
+        Header add Cross-Origin-Resource-Policy "cross-origin"
+    </FilesMatch>
+
+    <FilesMatch "\.unityweb\.gz$">
+        Header set Content-Encoding gzip
+        Header set Content-Type application/octet-stream
+        Header set Cache-Control "public, max-age=2592000"
+        Header add Cross-Origin-Opener-Policy "same-origin"
+        Header add Cross-Origin-Embedder-Policy "require-corp"
+        Header add Cross-Origin-Resource-Policy "cross-origin"
+    </FilesMatch>
+
+    <FilesMatch "\.(wasm|wasm\.unityweb|wasm\.gz|wasm\.br|data|data\.unityweb|data\.gz|data\.br|js|js\.unityweb|js\.gz|js\.br|symbols\.json|symbols\.json\.gz|symbols\.json\.br)$">
+        Header set Cache-Control "public, max-age=2592000"
+        Header add Cross-Origin-Opener-Policy "same-origin"
+        Header add Cross-Origin-Embedder-Policy "require-corp"
+        Header add Cross-Origin-Resource-Policy "cross-origin"
+    </FilesMatch>
+</IfModule>
+
+# Expires headers for caching (30 days)
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    ExpiresByType application/wasm "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType application/octet-stream "access plus 30 days"
+    ExpiresByType application/gzip "access plus 30 days"
+</IfModule>
