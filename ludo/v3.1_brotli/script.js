@@ -1,0 +1,84 @@
+
+function updateVhUnit() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+updateVhUnit(); // Initial run
+window.addEventListener('resize', updateVhUnit);
+window.addEventListener('orientationchange', updateVhUnit);
+
+    function OnExit(url) {
+      console.log("Callback OnExit Called with url:" + url);
+      window.location.href = url;
+    }
+    function OnAuthSuccess(data) {
+      console.log("Callback OnAuthSuccess Called with data:", data);
+    }
+    function OnMatchStart(data) {
+      console.log("Callback OnMatchStart Called with data:", data);
+    } 
+ 
+
+
+const container = document.querySelector("#unity-container");
+const canvas = document.querySelector("#unity-canvas");
+const loadingBar = document.querySelector("#unity-loading-bar");
+const progressBarFull = document.querySelector("#unity-progress-bar-full");
+const loadingText = document.querySelector("#loading-text");
+
+// Device detection
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    container.classList.add("mobile");
+} else {
+    container.classList.add("desktop");
+}
+
+var buildUrl = "Build";
+var config = {
+    dataUrl: buildUrl + "/v3.1_brotli.data.unityweb",
+    frameworkUrl: buildUrl + "/v3.1_brotli.framework.js.unityweb",
+    codeUrl: buildUrl + "/v3.1_brotli.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "topuvai",
+    productName: "DeshiDice",
+    productVersion: "1.0",
+    contextAttributes: {
+    alpha: true
+    }
+};
+
+createUnityInstance(canvas, config, (progress) => {
+    progressBarFull.style.width = (100 * progress) + "%";
+    loadingText.innerText = "Loading... " + Math.round(progress * 100) + "%";
+}).then((unityInstance) => {
+    loadingBar.style.display = "none";
+}).catch((message) => {
+    alert(message);
+});
+
+function unityShowBanner(msg, type) {
+    const warningBanner = document.querySelector("#unity-warning");
+    function updateBannerVisibility() {
+    warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+    }
+    var div = document.createElement('div');
+    div.innerHTML = msg;
+    warningBanner.appendChild(div);
+    if (type == 'error') {
+    div.style = 'background: red; padding: 10px;';
+    } else {
+    if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+    setTimeout(function () {
+        warningBanner.removeChild(div);
+        updateBannerVisibility();
+    }, 5000);
+    }
+    updateBannerVisibility();
+}
+
+
+
+console.log = function () { };
+console.warn = function () { };
+console.error = function () { };

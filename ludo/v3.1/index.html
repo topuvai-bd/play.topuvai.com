@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <title>DeshiDice</title>
+  <link rel="shortcut icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+  <div id="unity-container">
+    <div id="left-panel" class="desktop-only">
+      <img src="logo.png" alt="Game Logo">
+      <p>Welcome to DeshiDice 🎲</p>
+    </div>
+
+    <div id="game-area">
+      <div id="unity-background"></div>
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+    </div>
+
+    <div id="right-panel" class="desktop-only">
+      <h2>Game Info</h2>
+      <p>Powered by topuvai</p>
+    </div>
+  </div>
+
+  <div id="unity-loading-bar">
+    <img id="loading-logo" src="logo.png" alt="Game Logo">
+    <div id="unity-progress-bar-empty">
+      <div id="unity-progress-bar-full"></div>
+    </div>
+    <div id="loading-text">Loading... 0%</div>
+  </div>
+
+  <div id="unity-warning"></div>
+
+  <!-- Unity loader script (correct macro) -->
+  <script src="Build/v3.1.loader.js"></script>
+  
+</body>
+
+</html>

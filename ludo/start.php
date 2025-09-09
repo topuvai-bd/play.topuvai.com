@@ -1,6 +1,6 @@
 <?php
     $error = "";
-    $version = "v3";
+    $version = "v3.1";
     if (isset($_GET["subscription_id"]) && isset($_GET["token"])) {
         $token           = $_GET["token"];
         $subscription_id = $_GET["subscription_id"];
@@ -11,18 +11,16 @@
         if (isset($_GET["compress"]) && ! empty($_GET["compress"])) {
             $compress = $_GET["compress"];
             if ($compress == "br") {
-                $compress = "v1_brotli";
-            }
-
-            if ($compress == "gzip") {
-                $compress = "v1_gzip";
+                $compress = "br";
+            }else if ($compress == "gzip") {
+                $compress = "gzip";
             }
 
         }
         $isFullGame = false;
         if (isset($_GET["full_game"]) && ! empty($_GET["full_game"])) {
-            $isFullGame                          = $_GET["full_game"];
-            $isFullGame == "true" ?: $isFullGame = "false";
+            $isFullGame  = $_GET["full_game"];
+            $isFullGame == "true" ? $isFullGame = "true" : $isFullGame = "false";
         }
         $room_id = "";
         if (isset($_GET["room_id"]) && ! empty($_GET["room_id"])) {
