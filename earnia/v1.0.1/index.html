@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <title>Earnia</title>
+  <link rel="shortcut icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+</head>
+
+<body>
+  <div id="unity-container">
+    <div id="left-panel" class="desktop-only">
+      <img src="logo.png" alt="Game Logo">
+      <p>Welcome to Earnia 🎲</p>
+    </div>
+
+    <div id="game-area">
+      <div id="unity-background"></div>
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+    </div>
+
+    <div id="right-panel" class="desktop-only">
+      <h2>Game Info</h2>
+      <p>Powered by DefaultCompany</p>
+    </div>
+  </div>
+
+  <div id="unity-loading-bar">
+    <img id="loading-logo" src="logo.png" alt="Game Logo">
+    <div id="unity-progress-bar-empty">
+      <div id="unity-progress-bar-full"></div>
+    </div>
+    <div id="loading-text">Loading... 0%</div>
+  </div>
+
+  <div id="unity-warning"></div>
+
+  <!-- Unity loader script (correct macro) -->
+  <script src="Build/v1.0.4.loader.js"></script>
+  <script src="unity-webview.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js");
+    });
+  }
+  </script>
+
+</body>
+
+</html>

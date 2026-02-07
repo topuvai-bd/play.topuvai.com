@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <title>Math Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="./favicon.ico">
+
+  <!-- ================== STYLES ================== -->
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    #unity-container.desktop {
+      display: grid;
+      grid-template-columns: 250px auto 300px;
+      height: 100vh;
+    }
+
+    #left-panel {
+      background: #1f1f1f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border-right: 2px solid #333;
+    }
+
+    #left-panel img {
+      max-width: 80%;
+    }
+
+    #right-panel {
+      background: #1a1a1a;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    #game-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      height: calc(var(--vh, 1vh) * 100);
+      position: relative;
+      overflow: hidden;
+    }
+
+   #unity-background {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+        background-color: #ff0000;
+        background-image: url("background.jpg"); 
+
+  background-repeat: no-repeat;       
+  background-size: cover;           
+  background-position: center center; 
+    }
+
+
+    #unity-canvas {
+      height: 100%;
+      aspect-ratio: 9 / 16;
+      width: auto;
+      z-index: 99;
+      /* background: transparent !important; */
+    } 
+     #unity-canvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+
+    #unity-container.mobile {
+      width: 100vw;
+      height: calc(var(--vh, 1vh) * 100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    #unity-container.mobile #unity-canvas {
+      width: 100vw;
+      height: calc(var(--vh, 1vh) * 100);
+      aspect-ratio: auto;
+    }
+
+    #unity-loading-bar {
+      position: absolute;
+      inset: 0;
+      background: #121212;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #loading-logo {
+      width: 200px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    #loading-text {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    #unity-progress-bar-empty {
+      width: 70%;
+      height: 12px;
+      background: #333;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    #unity-progress-bar-full {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff8a00, #e52e71);
+      transition: width 0.3s ease;
+    }
+
+    .desktop-only { display: block; }
+
+    #unity-container.mobile .desktop-only {
+      display: none !important;
+    }
+
+    #unity-warning {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 10000;
+    }
+
+    @media (max-width: 720px) {
+      #left-panel, #right-panel {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="unity-container">
+  <div id="left-panel" class="desktop-only">
+    <img src="logo.png" alt="Logo">
+    <p>Welcome to Math Game 🧮</p>
+  </div>
+
+  <div id="game-area">
+    <div id="unity-background"></div>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+  </div>
+
+  <div id="right-panel" class="desktop-only">
+    <h2>Game Info</h2>
+    <p>Powered by TopuVai</p>
+  </div>
+</div>
+
+<div id="unity-loading-bar">
+  <img id="loading-logo" src="logo.png">
+  <div id="unity-progress-bar-empty">
+    <div id="unity-progress-bar-full"></div>
+  </div>
+  <div id="loading-text">Loading... 0%</div>
+</div>
+
+<div id="unity-warning"></div>
+
+<!-- ================== UNITY LOADER ================== -->
+<script src="Build/MathGameEarnia.loader.js"></script>
+
+<!-- ================== SCRIPT ================== -->
+<script>
+  function updateVhUnit() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  }
+  updateVhUnit();
+  window.addEventListener('resize', updateVhUnit);
+
+  const container = document.getElementById("unity-container");
+  const canvas = document.getElementById("unity-canvas");
+  const loadingBar = document.getElementById("unity-loading-bar");
+  const progressBarFull = document.getElementById("unity-progress-bar-full");
+  const loadingText = document.getElementById("loading-text");
+
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    container.classList.add("mobile");
+  } else {
+    container.classList.add("desktop");
+  }
+
+  function unityShowBanner(msg, type) {
+    const banner = document.getElementById("unity-warning");
+    const div = document.createElement("div");
+    div.innerHTML = msg;
+    div.style.padding = "10px";
+    div.style.background = type === "error" ? "red" : "yellow";
+    banner.appendChild(div);
+    setTimeout(() => div.remove(), 5000);
+  }
+
+  const config = {
+    dataUrl: "Build/MathGameEarnia.data.unityweb",
+    frameworkUrl: "Build/MathGameEarnia.framework.js.unityweb",
+    codeUrl: "Build/MathGameEarnia.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "TopuVai",
+    productName: "Math Game",
+    productVersion: "1.0",
+    showBanner: unityShowBanner,
+    contextAttributes: { alpha: true  }
+  };
+
+  createUnityInstance(canvas, config, (progress) => {
+    progressBarFull.style.width = `${progress * 100}%`;
+    loadingText.textContent = `Loading... ${Math.round(progress * 100)}%`;
+  }).then(() => {
+    loadingBar.style.display = "none";
+  }).catch(alert);
+</script>
+
+</body>
+</html>
