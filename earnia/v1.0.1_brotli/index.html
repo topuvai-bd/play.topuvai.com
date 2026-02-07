@@ -10,6 +10,7 @@
   <script src="script.js" defer></script>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -44,7 +45,7 @@
   <div id="unity-warning"></div>
 
   <!-- Unity loader script (correct macro) -->
-  <script src="Build/v1.0.4.loader.js"></script>
+  <script src="Build/v1.0.5.loader.js"></script>
   <script src="unity-webview.js"></script>
   <script>
   if ("serviceWorker" in navigator) {
@@ -53,45 +54,6 @@
     });
   }
   </script>
-  <script>
-(function () {
-
-    // Accept only *.topuvai.com
-    function isAllowedOrigin(origin) {
-        return (
-            origin.startsWith("https://") &&
-            origin.endsWith(".topuvai.com")
-        );
-    }
-
-    window.addEventListener("message", function (event) {
-
-        if (!isAllowedOrigin(event.origin)) {
-            console.warn("Blocked message from:", event.origin);
-            return;
-        }
-
-        if (!event.data || event.data.type !== "LOGIN_SUCCESS") {
-            return;
-        }
-
-        if (typeof unityInstance === "undefined") {
-            console.error("unityInstance not ready");
-            return;
-        }
-
-        const { access, refresh, uid } = event.data;
-
-        unityInstance.SendMessage(
-            "LoginSceneManager",
-            "OnLoginSuccess",
-            `access_token=${access}&refresh_token=${refresh}&uid=${uid}`
-        );
-
-    });
-
-})();
-</script>
 
 </body>
 

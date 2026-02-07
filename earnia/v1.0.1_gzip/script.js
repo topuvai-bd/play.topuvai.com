@@ -59,9 +59,9 @@ if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
 
 var buildUrl = "Build";
 var config = {
-    dataUrl: buildUrl + "/v1.0.4.data",
-    frameworkUrl: buildUrl + "/v1.0.4.framework.js",
-    codeUrl: buildUrl + "/v1.0.4.wasm",
+    dataUrl: buildUrl + "/v1.0.5.data",
+    frameworkUrl: buildUrl + "/v1.0.5.framework.js",
+    codeUrl: buildUrl + "/v1.0.5.wasm",
     streamingAssetsUrl: "StreamingAssets",
     companyName: "DefaultCompany",
     productName: "Earnia",
@@ -107,3 +107,43 @@ function unityShowBanner(msg, type) {
 // console.log = function () { };
 // console.warn = function () { };
 // console.error = function () { };
+
+
+
+(function () {
+
+    // Accept only *.topuvai.com
+    function isAllowedOrigin(origin) {
+        return (
+            origin.startsWith("https://") &&
+            origin.endsWith(".topuvai.com")
+        );
+    }
+
+    window.addEventListener("message", function (event) {
+
+        if (!isAllowedOrigin(event.origin)) {
+            console.warn("Blocked message from:", event.origin);
+            return;
+        }
+
+        if (!event.data || event.data.type !== "LOGIN_SUCCESS") {
+            return;
+        }
+
+        if (typeof unityInstance === "undefined") {
+            console.error("unityInstance not ready");
+            return;
+        }
+
+        const { access, refresh, uid } = event.data;
+
+        unityInstance.SendMessage(
+            "LoginSceneManager",
+            "OnLoginSuccess",
+            `access_token=${access}&refresh_token=${refresh}&uid=${uid}`
+        );
+
+    });
+
+})();
