@@ -7,7 +7,7 @@
 </head>
 <body>
     <script>
-    window.location.href = "v1.0.1/download.html";
+    window.location.href = "v1.0.2/download.html";
     </script>
 </body>
 </html>

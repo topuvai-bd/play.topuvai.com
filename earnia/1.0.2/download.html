@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install Earnia PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0F1220;
+    color: #FFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: #00E676;
+}
+
+p {
+    color: #B0BEC5;
+    max-width: 400px;
+    text-align: center;
+}
+
+#install-btn {
+    padding: 12px 24px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    background: linear-gradient(90deg, #00E676, #00C853);
+    color: #000;
+    cursor: pointer;
+}
+
+#install-btn:hover {
+    opacity: 0.9;
+}
+</style>
+
+</head>
+<body>
+    <h1>Install Earnia</h1>
+    <p>Click the button below to install the app:</p>
+    <button id="install-btn">Install PWA</button>
+
+<script>
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User choice: ${outcome}`);
+        deferredPrompt = null;
+    } else {
+        // Detect browser
+        const ua = navigator.userAgent;
+        if (ua.includes("Chrome")) {
+            alert(
+                "On desktop Chrome, click the menu (⋮) in the top-right corner and select 'Install Earnia…'."
+            );
+        } else if (ua.includes("Firefox")) {
+            alert(
+                "Firefox desktop does not support PWA install prompts. You can use Chrome or Edge to install Earnia."
+            );
+        } else if (ua.includes("Edg")) {
+            alert(
+                "On desktop Edge, click the menu (…) in the top-right corner and select 'Apps → Install Earnia…'."
+            );
+        } else {
+            alert(
+                "Your browser does not support automatic PWA installation. Please use Chrome or Edge for the best experience."
+            );
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>

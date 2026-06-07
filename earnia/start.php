@@ -1,6 +1,6 @@
 <?php
     $error   = "";
-    $version = "v1.0.1"; // also change in download for PWA
+    $version = "v1.0.2"; // also change in download for PWA
     if (isset($_GET["access_token"]) && isset($_GET["refresh_token"]) && isset($_GET["uid"])) {
         $access_token  = $_GET["access_token"];
         $refresh_token = $_GET["refresh_token"];
