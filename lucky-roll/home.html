@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucky Roll — Select Room</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0A0E17;
+      --card-dark:   #0F172A;
+      --card-mid:    #1E293B;
+      --amber:       #F59E0B;
+      --amber-hover: #D97706;
+      --cyan:        #38BDF8;
+      --green:       #10B981;
+      --text-head:   #FFFFFF;
+      --text-body:   #94A3B8;
+      --glow-amber:  0 0 18px rgba(245,158,11,.45);
+      --glow-cyan:   0 0 14px rgba(56,189,248,.35);
+      --radius:      14px;
+      --transition:  .2s ease;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text-body);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Background pattern ───────────────────────────────────── */
+    body {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,158,11,.12) 0%, transparent 70%),
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(255,255,255,.015) 40px,
+          rgba(255,255,255,.015) 41px
+        );
+      min-height: 100vh;
+    }
+
+    /* ── Layout wrapper ───────────────────────────────────────── */
+    .page {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 0 16px 40px;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--amber), var(--amber-hover));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: var(--glow-amber);
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-head);
+      letter-spacing: .5px;
+    }
+
+    .logo-text span { color: var(--amber); }
+
+    .version-badge {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(16,185,129,.12);
+      border: 1px solid rgba(16,185,129,.3);
+      border-radius: 20px;
+      padding: 3px 10px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 32px 0 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 900;
+      color: var(--text-head);
+      line-height: 1.15;
+      letter-spacing: -.5px;
+    }
+
+    .hero h1 span { color: var(--amber); }
+
+    .hero p {
+      margin-top: 8px;
+      font-size: .9rem;
+      color: var(--text-body);
+    }
+
+    /* ── Loading state ────────────────────────────────────────── */
+    #loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 60px 0;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(245,158,11,.2);
+      border-top-color: var(--amber);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Room grid ────────────────────────────────────────────── */
+    #rooms-state { display: none; }
+
+    .section-label {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 14px;
+    }
+
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 480px) {
+      .rooms-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 800px) {
+      .rooms-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── Room card ────────────────────────────────────────────── */
+    .room-card {
+      background: var(--card-dark);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .room-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(245,158,11,.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .room-card:hover,
+    .room-card:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(245,158,11,.5);
+      box-shadow: var(--glow-amber), 0 8px 32px rgba(0,0,0,.4);
+    }
+
+    .room-card:hover::before,
+    .room-card:focus-visible::before { opacity: 1; }
+
+    .room-card:active { transform: translateY(0); }
+
+    .room-index-badge {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: .65rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-body);
+      background: var(--card-mid);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    .room-card-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-head);
+      margin-bottom: 14px;
+    }
+
+    .room-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .82rem;
+    }
+
+    .stat-label {
+      color: var(--text-body);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-label svg { flex-shrink: 0; }
+
+    .stat-value {
+      font-weight: 700;
+      color: var(--text-head);
+    }
+
+    .stat-value.join  { color: var(--cyan); }
+    .stat-value.win   { color: var(--amber); }
+    .stat-value.slots { color: var(--green); }
+
+    .room-cta {
+      margin-top: 16px;
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--amber), var(--amber-hover));
+      color: #000;
+      font-size: .85rem;
+      font-weight: 800;
+      letter-spacing: .5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity var(--transition), box-shadow var(--transition);
+      box-shadow: var(--glow-amber);
+    }
+
+    .room-cta:hover { opacity: .88; }
+
+    /* ── Divider ──────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,.06);
+      margin: 28px 0 20px;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      margin-top: auto;
+      padding-top: 32px;
+      text-align: center;
+      font-size: .75rem;
+      color: rgba(148,163,184,.4);
+    }
+
+    /* ── Error popup overlay ──────────────────────────────────── */
+    #error-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #error-overlay.visible { display: flex; }
+
+    .error-popup {
+      background: var(--card-dark);
+      border: 1px solid rgba(239,68,68,.35);
+      border-radius: var(--radius);
+      padding: 32px 28px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(239,68,68,.2), 0 20px 60px rgba(0,0,0,.6);
+      animation: popIn .25s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(.88); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .error-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+
+    .error-popup h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-head);
+      margin-bottom: 8px;
+    }
+
+    .error-popup p {
+      font-size: .875rem;
+      color: var(--text-body);
+      line-height: 1.55;
+      margin-bottom: 24px;
+    }
+
+    .btn-exit {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--amber), var(--amber-hover));
+      color: #000;
+      font-size: .875rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--glow-amber);
+      transition: opacity var(--transition);
+      text-decoration: none;
+    }
+
+    .btn-exit:hover { opacity: .88; }
+
+    /* ── Utility ──────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ── Error overlay (non-dismissible) ──────────────────────── -->
+<div id="error-overlay" role="alertdialog" aria-modal="true" aria-labelledby="err-title" aria-describedby="err-msg">
+  <div class="error-popup">
+    <div class="error-icon" aria-hidden="true">⚠️</div>
+    <h2 id="err-title">Something went wrong</h2>
+    <p id="err-msg">An unexpected error occurred.</p>
+    <button class="btn-exit" id="err-exit-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Exit
+    </button>
+  </div>
+</div>
+
+<!-- ── Page ──────────────────────────────────────────────────── -->
+<div class="page">
+
+  <header>
+    <div class="logo-wrap">
+      <div class="logo-icon" aria-hidden="true">🎲</div>
+      <span class="logo-text">Lucky<span>Roll</span></span>
+    </div>
+    <span class="version-badge hidden" id="version-badge">v—</span>
+  </header>
+
+  <section class="hero">
+    <h1>Choose Your <span>Room</span></h1>
+    <p>Pick a table, place your bet, and roll the dice.</p>
+  </section>
+
+  <!-- Loading -->
+  <div id="loading-state" aria-live="polite" aria-label="Loading rooms…">
+    <div class="spinner" aria-hidden="true"></div>
+    <span style="font-size:.85rem;">Fetching rooms…</span>
+  </div>
+
+  <!-- Rooms -->
+  <div id="rooms-state" aria-live="polite">
+    <p class="section-label">Available Rooms</p>
+    <div class="rooms-grid" id="rooms-grid" role="list"></div>
+  </div>
+
+  <footer>
+    &copy; <span id="footer-year"></span> Lucky Roll &mdash; All rights reserved.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── CONFIG ─────────────────────────────────────────────────── */
+  var API_ENDPOINT = 'https://rent-a-game.topuvai.com/lucky-roll/api/get_game_settings';
+  var START_PAGE   = 'start';
+  var MAX_ROOM_INDEX = 4;
+
+  /* ── STATE ──────────────────────────────────────────────────── */
+  var webglExitURL = null;
+
+  /* ── DOM refs ───────────────────────────────────────────────── */
+  var loadingEl    = document.getElementById('loading-state');
+  var roomsEl      = document.getElementById('rooms-state');
+  var roomsGrid    = document.getElementById('rooms-grid');
+  var versionBadge = document.getElementById('version-badge');
+  var overlay      = document.getElementById('error-overlay');
+  var errTitle     = document.getElementById('err-title');
+  var errMsg       = document.getElementById('err-msg');
+  var errExitBtn   = document.getElementById('err-exit-btn');
+  var footerYear   = document.getElementById('footer-year');
+
+  document.querySelector('.logo-wrap').addEventListener('click', function() {
+    if (webglExitURL) {
+      window.location.href = webglExitURL;
+    } else {
+      window.location.href = 'https://rent-a-game.topuvai.com/';
+    }
+  });
+
+  document.querySelector('.logo-wrap').addEventListener('click', function() {
+    if (webglExitURL) {
+      window.location.href = webglExitURL;
+    } else {
+      window.location.href = 'https://rent-a-game.topuvai.com/';
+    }
+  });
+
+  footerYear.textContent = new Date().getFullYear();
+
+  /* ── Parse query string ─────────────────────────────────────── */
+  var qs = new URLSearchParams(window.location.search);
+
+  var token          = (qs.get('token')          || '').trim();
+  var subscriptionId = (qs.get('subscription_id')|| '').trim();
+  var playerId       = (qs.get('player_id')      || '').trim();
+  var transparent    = (qs.get('transparent')    || '').trim().toLowerCase();
+  var compress       = (qs.get('compress')       || '').trim().toLowerCase();
+
+  /* ── Validate required params ───────────────────────────────── */
+  if (!token || !subscriptionId) {
+    showError(
+      'Missing Credentials',
+      'This page requires <strong>token</strong> and <strong>subscription_id</strong> in the URL. Please use the correct game link.'
+    );
+    return;
+  }
+
+  /* ── Fetch settings ─────────────────────────────────────────── */
+  fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscription_id: subscriptionId })
+  })
+  .then(function (res) { return res.json(); })
+  .then(function (json) {
+    if (!json || typeof json !== 'object') {
+      throw new Error('Malformed response from server.');
+    }
+
+    /* Store exit URL as soon as we have it */
+    if (json.Data && json.Data.WebglExitURL) {
+      webglExitURL = json.Data.WebglExitURL;
+    }
+
+    if (json.StatusCode !== 200) {
+      throw new Error(json.StatusMessage || 'Server returned an error (code ' + json.StatusCode + ').');
+    }
+
+    var data = json.Data;
+    if (!data || !Array.isArray(data.RoomList)) {
+      throw new Error('Invalid settings data received.');
+    }
+
+    /* Filter to valid indexes 0-4 */
+    var rooms = data.RoomList.filter(function (r) {
+      return typeof r.index === 'number' && r.index >= 0 && r.index <= MAX_ROOM_INDEX;
+    });
+
+    if (rooms.length === 0) {
+      throw new Error('No rooms are available right now. Please try again later.');
+    }
+
+    /* Version badge */
+    if (data.Version) {
+      versionBadge.textContent = 'v' + data.Version;
+      versionBadge.classList.remove('hidden');
+    }
+
+    renderRooms(rooms);
+  })
+  .catch(function (err) {
+    showError('Connection Error', err.message || 'Could not load room settings. Please try again.');
+  });
+
+  /* ── Render rooms ───────────────────────────────────────────── */
+  function renderRooms(rooms) {
+    roomsGrid.innerHTML = '';
+
+    rooms.forEach(function (room) {
+      var card = document.createElement('article');
+      card.className = 'room-card';
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label',
+        'Room ' + room.index +
+        ', Join ' + room.join_amount + ' coins' +
+        ', Win up to ' + room.winner_amount + ' coins' +
+        ', Max ' + room.max_players + ' players'
+      );
+
+      card.innerHTML =
+        '<span class="room-index-badge">Room Index: ' + room.index + '</span>' +
+        '<p class="room-card-title">🎲 Table ' + (room.index+1) + '</p>' +
+        '<div class="room-stats">' +
+          '<div class="stat-row">' +
+            '<span class="stat-label">' +
+              svgCoin() + ' Entry Fee' +
+            '</span>' +
+            '<span class="stat-value join">' + formatCoins(room.join_amount) + '</span>' +
+          '</div>' +
+          '<div class="stat-row">' +
+            '<span class="stat-label">' +
+              svgTrophy() + ' Prize Pool' +
+            '</span>' +
+            '<span class="stat-value win">' + formatCoins(room.winner_amount) + '</span>' +
+          '</div>' +
+          '<div class="stat-row">' +
+            '<span class="stat-label">' +
+              svgUsers() + ' Max Players/Room' +
+            '</span>' +
+            '<span class="stat-value slots">' + room.max_players + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<button class="room-cta" tabindex="-1" aria-hidden="true">Play Now →</button>';
+
+      function launch() { navigateToStart(room.index); }
+
+      card.addEventListener('click', launch);
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launch(); }
+      });
+
+      roomsGrid.appendChild(card);
+    });
+
+    loadingEl.style.display = 'none';
+    roomsEl.style.display   = 'block';
+  }
+
+  /* ── Navigate to start.php ──────────────────────────────────── */
+  function navigateToStart(roomIndex) {
+    var params = new URLSearchParams();
+    params.set('token',           token);
+    params.set('subscription_id', subscriptionId);
+    params.set('room_index',      String(roomIndex));
+
+    if (playerId)    params.set('player_id',  playerId);
+    if (transparent) params.set('transparent', transparent);
+    if (compress)    params.set('compress',    compress);
+
+    window.location.href = START_PAGE + '?' + params.toString();
+  }
+
+  /* ── Error popup ────────────────────────────────────────────── */
+  function showError(title, message) {
+    loadingEl.style.display = 'none';
+    roomsEl.style.display   = 'none';
+
+    errTitle.textContent = title;
+    errMsg.innerHTML     = message;
+
+    errExitBtn.onclick = function () {
+      if (webglExitURL) {
+        window.location.href = webglExitURL;
+      } else {
+        history.back();
+      }
+    };
+
+    overlay.classList.add('visible');
+    errExitBtn.focus();
+  }
+
+  /* ── Helpers ────────────────────────────────────────────────── */
+  function formatCoins(n) {
+    return typeof n === 'number' ? n.toLocaleString() + ' coins' : n + ' coins';
+  }
+
+  function svgCoin() {
+    return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h4.5a2.5 2.5 0 0 1 0 5H9"/></svg>';
+  }
+
+  function svgTrophy() {
+    return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4a2 2 0 0 1-2-2V5h4"/><path d="M18 9h2a2 2 0 0 0 2-2V5h-4"/><path d="M12 17v4"/><path d="M8 21h8"/><path d="M6 5h12v6a6 6 0 0 1-12 0V5z"/></svg>';
+  }
+
+  function svgUsers() {
+    return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+  }
+
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "DeshiDice",
+  "displayName": "🎲 DeshiDice Custom Template",
+  "description": "A custom WebGL template with left and right sidebars, responsive mobile layout, and animated loading screen.",
+  "author": "TopuVai",
+  "thumbnail": "thumbnail.png",
+  "unity": "6000.1",
+  "default": false
+}
