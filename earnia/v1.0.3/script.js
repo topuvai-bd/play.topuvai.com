@@ -59,9 +59,9 @@ if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
 
 var buildUrl = "Build";
 var config = {
-    dataUrl: buildUrl + "/v1.0.3.data.br",
-    frameworkUrl: buildUrl + "/v1.0.3.framework.js.br",
-    codeUrl: buildUrl + "/v1.0.3.wasm.br",
+    dataUrl: buildUrl + "/v1.0.3.data",
+    frameworkUrl: buildUrl + "/v1.0.3.framework.js",
+    codeUrl: buildUrl + "/v1.0.3.wasm",
     streamingAssetsUrl: "StreamingAssets",
     companyName: "TopuVai",
     productName: "Earnia",
