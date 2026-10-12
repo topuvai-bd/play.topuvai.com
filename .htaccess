@@ -1,6 +1,3 @@
-# Enable MultiViews to serve compressed variants automatically
-Options +MultiViews
-
 # MIME types and encoding
 <IfModule mod_mime.c>
     # Remove conflicting types
