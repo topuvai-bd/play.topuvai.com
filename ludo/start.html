@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Ludo</title>
+</head>
+<body>
+    <script>
+        // Parse URL parameters
+        const params = new URLSearchParams(window.location.search);
+        
+        // Construct URL to index.html in v3.1 folder
+        const version = "v3.1";
+        const redirectUrl = `${version}/index.html`;
+        
+        // Redirect to the URL with all parameters preserved
+        window.location.href = redirectUrl + (params.toString() ? "?" + params.toString() : "");
+    </script>
+</body>
+</html>
