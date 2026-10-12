@@ -104,9 +104,9 @@ function unityShowBanner(msg, type) {
 
 
 
-// console.log = function () { };
-// console.warn = function () { };
-// console.error = function () { };
+console.log = function () { };
+console.warn = function () { };
+console.error = function () { };
 
 
 
