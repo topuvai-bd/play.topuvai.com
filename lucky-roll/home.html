@@ -497,14 +497,12 @@
     }
 
     /* Store exit URL as soon as we have it */
-    if (json.Data && json.Data.WebglExitURL) {
-      webglExitURL = json.Data.WebglExitURL;
-    }
-
     if (json.StatusCode !== 200) {
       throw new Error(json.StatusMessage || 'Server returned an error (code ' + json.StatusCode + ').');
     }
-
+    if (json.Data && json.Data.WebglExitURL) {
+      webglExitURL = json.Data.WebglExitURL;
+    }
     var data = json.Data;
     if (!data || !Array.isArray(data.RoomList)) {
       throw new Error('Invalid settings data received.');
